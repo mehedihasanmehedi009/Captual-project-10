@@ -22,24 +22,23 @@ const client = new MongoClient(uri, {
     deprecationErrors: true,
   },
 });
- const verifyFirebase = async (req, res, next) => {
+const verifyFirebase = async (req, res, next) => {
   if (!req.headers.authorization) {
     return res.status(401).send({ message: "Unauthorized access" });
   }
-  const token = req.headers.authorization.split(" ")[1]; 
+  const token = req.headers.authorization.split(" ")[1];
   if (!token) {
     return res.status(401).send({ message: "Unauthorized access" });
   }
   try {
     const userInfo = await admin.auth().verifyIdToken(token);
     req.token_email = userInfo.email;
-    console.log(userInfo)
+    console.log(userInfo);
     next();
   } catch (err) {
     return res.status(401).send({ message: "Unauthorized access" });
   }
 };
-
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
@@ -58,8 +57,8 @@ async function run() {
       res.send(result);
     });
     // find one
-    app.get("/Products/:id",   async (req, res) => {
-      const id = req.params.id; 
+    app.get("/Products/:id",verifyFirebase, async (req, res) => {
+      const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await Product.findOne(query);
       res.send(result);
@@ -97,12 +96,11 @@ async function run() {
       const result = await Product.deleteOne(query);
       res.send(result);
     });
-    app.get("/my-model",verifyFirebase,async(req,res)=>{
-      const email = req.query.email
-      const  result = await Product.find({created_by:email}).toArray()
-     res.send(result)
-
-    })
+    app.get("/my-model", verifyFirebase, async (req, res) => {
+      const email = req.query.email;
+      const result = await Product.find({ created_by: email }).toArray();
+      res.send(result);
+    });
 
     await client.db("admin").command({ ping: 1 });
     console.log(
