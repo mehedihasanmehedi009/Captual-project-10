@@ -50,6 +50,7 @@ async function run() {
 
     const my = client.db("myDB");
     const Product = my.collection("Products");
+    const downloddeals = my.collection("downlod")
     // all  find
     app.get("/Products", async (req, res) => {
       const cursor = Product.find();
@@ -77,6 +78,21 @@ async function run() {
       const result = await Product.insertOne(newproduct);
       res.send(result);
     });
+    
+    // downlod 
+    app.post("/downlod",async(req,res)=>{
+      const data = req.body
+       const result =  await downloddeals.insertOne(data)
+       res.send(result)
+    })
+ 
+
+        app.get("/my-downlod",async(req,res)=>{
+      const email = req.query.email
+       const result =  await downloddeals.find({
+Downloaded_by:email}).toArray()
+       res.send(result)
+    })
     //  put
     app.put("/Products/:id", async (req, res) => {
       const id = req.params.id;
