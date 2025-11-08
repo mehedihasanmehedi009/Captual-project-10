@@ -80,13 +80,21 @@ async function run() {
     });
     
     // downlod 
-    app.post("/downlod",async(req,res)=>{
-      const data = req.body
+    app.post("/downlod/:id",async(req,res)=>{
+        const data = req.body
+          const id = req.params.id
        const result =  await downloddeals.insertOne(data)
-       res.send(result)
-    })
- 
+       const filter = {_id: new ObjectId (id)}
+       const  updete = {
+        $inc:{    
+      downloads : 1
+        }
+       }
+       const downloded = await Product.updateOne( filter,updete)
+       res.send(result ,downloded)})
 
+
+       
         app.get("/my-downlod",async(req,res)=>{
       const email = req.query.email
        const result =  await downloddeals.find({
